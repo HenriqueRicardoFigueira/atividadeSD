@@ -8,7 +8,7 @@
 
 import socket
 from datetime import datetime
-import binascii
+import os
 
 def recive_message(clientsock):
     data = clientsock.recv(20)
@@ -29,12 +29,19 @@ while True:
         dataHora = str(datetime.now())
         hora = dataHora[11:]
         data = dataHora[0:10]
-        if dataRecive.decode() == "time" or dataRecive.decode() == "TIME":
+        dataDecode = dataRecive.decode()
+        if dataDecode == "time" or dataDecode == "TIME":
             hora = bytes(hora, "utf-8")
             client.send(hora)
-        elif dataRecive.decode() == "date" or dataRecive.decode() == "DATE":
+        elif dataDecode == "date" or dataDecode == "DATE":
             data = bytes(data , "utf-8")
             client.send(data)
-        elif dataRecive.decode() == "exit" or dataRecive.decode() == "EXIT":
+        elif dataDecode == "files" or dataDecode == "FILES":
+            print("entrei")
+            listDir = os.listdir("/home/henrique/Área de Trabalho/atividadeSD-master/atividadeSD")
+            for diir in listDir:
+                data = bytes(diir , "utf-8")
+                client.send(data)
+        elif dataDecode == "exit" or dataDecode == "EXIT":
             sock.close()
             break
