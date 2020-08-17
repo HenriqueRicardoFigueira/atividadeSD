@@ -7,9 +7,10 @@
 ###
 
 import socket
+import pickle
+
 def send_message(sock, message):
     ret = sock.send(message)
-    print(ret)
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect(('127.0.0.1', 5000))
@@ -21,8 +22,13 @@ while True:
     if messag == "exit" or messag == "EXIT":
         sock.close()
         break
-    data = sock.recv(1024)
-    print(repr(data))
+    elif messag == "files" or messag == "FILES":
+        data = sock.recv(1024)
+        print(pickle.loads(data))
+    else:
+        data = sock.recv(1024)
+        if data != b"":
+            print(repr(data))
     
 #sock.close()
 

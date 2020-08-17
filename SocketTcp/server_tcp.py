@@ -8,40 +8,48 @@
 
 import socket
 from datetime import datetime
+import pickle
+import struct
 import os
 
 def recive_message(clientsock):
-    data = clientsock.recv(20)
+    data = clientsock.recv(1024)
     return data
+
+def parse_date(dt):
+    dataHora = str(datetime.now())
+    hora = dataHora[11:]
+    data = dataHora[0:10]
+    if dt == "hora":
+        return hora
+    else:
+        return data
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind(('127.0.0.1', 5000))
 sock.listen(10)
-(client, addr) = sock.accept()
+
 
 while True:
-    dataRecive = recive_message(client)
-    if not dataRecive:
-        sock.close()
-        break
-    else:
-        print(dataRecive)
-        dataHora = str(datetime.now())
-        hora = dataHora[11:]
-        data = dataHora[0:10]
-        dataDecode = dataRecive.decode()
-        if dataDecode == "time" or dataDecode == "TIME":
-            hora = bytes(hora, "utf-8")
-            client.send(hora)
-        elif dataDecode == "date" or dataDecode == "DATE":
-            data = bytes(data , "utf-8")
-            client.send(data)
-        elif dataDecode == "files" or dataDecode == "FILES":
-            print("entrei")
-            listDir = os.listdir("/home/henrique/Área de Trabalho/atividadeSD-master/atividadeSD")
-            for diir in listDir:
-                data = bytes(diir , "utf-8")
-                client.send(data)
-        elif dataDecode == "exit" or dataDecode == "EXIT":
-            sock.close()
-            break
+    client, addr = sock.accept()
+    with client:
+        dataRecive = recive_message(client)
+        if dataRecive != b'':
+            dataDecode = dataRecive.decode()            
+            if dataDecode == "time" or dataDecode == "TIME":
+                hora = parse_date("hora")
+                client.send(bytes(hora, "utf-8"))
+            
+            elif dataDecode == "date" or dataDecode == "DATE":
+                data = parse_date("data")
+                client.send(bytes(data , "utf-8"))
+           
+            elif dataDecode == "files" or dataDecode == "FILES":
+                listDir = os.listdir("./shared")
+                nov = (len(listDir), listDir)
+                dados = pickle.dumps(nov)
+                client.send(dados)
+
+            elif dataDecode == "exit" or dataDecode == "EXIT":
+                sock.close()
+                break
