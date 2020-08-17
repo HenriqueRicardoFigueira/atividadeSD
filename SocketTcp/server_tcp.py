@@ -20,6 +20,9 @@ def parse_date(dt):
     dataHora = str(datetime.now())
     hora = dataHora[11:]
     data = dataHora[0:10]
+    data = data.replace("-","/")
+    data = data.split("/")
+    data = data[2]+"/"+data[1]+"/"+data[0]
     if dt == "hora":
         return hora
     else:
@@ -28,12 +31,12 @@ def parse_date(dt):
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind(('127.0.0.1', 5000))
 sock.listen(10)
-
+client, addr = sock.accept()
 
 while True:
-    client, addr = sock.accept()
-    with client:
+    if client:
         dataRecive = recive_message(client)
+        print(dataRecive)
         if dataRecive != b'':
             dataDecode = dataRecive.decode()            
             if dataDecode == "time" or dataDecode == "TIME":
@@ -51,5 +54,5 @@ while True:
                 client.send(dados)
 
             elif dataDecode == "exit" or dataDecode == "EXIT":
-                sock.close()
-                break
+                client.close()
+                
