@@ -10,16 +10,17 @@ import socket
 from datetime import datetime
 import binascii
 
+def recive_message(clientsock):
+    data = clientsock.recv(20)
+    return data
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind(('127.0.0.1', 5000))
 sock.listen(10)
+(client, addr) = sock.accept()
 
 while True:
-    (client, addr) = sock.accept()
-    if client:
-        print(addr)
-    dataRecive = client.recv(20)
+    dataRecive = recive_message(client)
     if not dataRecive:
         sock.close()
         break
@@ -36,3 +37,4 @@ while True:
             client.send(data)
         elif dataRecive.decode() == "exit" or dataRecive.decode() == "EXIT":
             sock.close()
+            break
