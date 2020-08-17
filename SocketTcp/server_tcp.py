@@ -19,12 +19,20 @@ while True:
     (client, addr) = sock.accept()
     if client:
         print(addr)
-        data = client.recv(20)
-        if not data:
-            sock.close()
-            break
-        else:
-            print(data)
-            hora = bytes(str(datetime.now()), "utf-8")
+    dataRecive = client.recv(20)
+    if not dataRecive:
+        sock.close()
+        break
+    else:
+        print(dataRecive)
+        dataHora = str(datetime.now())
+        hora = dataHora[11:]
+        data = dataHora[0:10]
+        if dataRecive.decode() == "time" or dataRecive.decode() == "TIME":
+            hora = bytes(hora, "utf-8")
             client.send(hora)
-            #sock.close()
+        elif dataRecive.decode() == "date" or dataRecive.decode() == "DATE":
+            data = bytes(data , "utf-8")
+            client.send(data)
+        elif dataRecive.decode() == "exit" or dataRecive.decode() == "EXIT":
+            sock.close()
