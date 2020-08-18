@@ -7,7 +7,7 @@
 ###
 
 SEPARATOR = "<SEPARATOR>"
-BUFFER_SIZE = 4096 
+BUFFER_SIZE = 1024 
 
 import socket
 from datetime import datetime
@@ -36,6 +36,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind(('127.0.0.1', 5000))
 sock.listen(10)
 client, addr = sock.accept()
+print(f"[+] {addr} is connected.")
 
 while True:
     if client:
@@ -58,21 +59,27 @@ while True:
                 dados = pickle.dumps(nov)
                 client.send(dados)
             
-            elif dow[0] == "down" or dow[1] == "DOWN":
+            elif dow[0] == "down" or dow[0] == "DOWN":
                 n = dataDecode.split(" ")
                 filename = str(n[1])
                 filesize = os.path.getsize("./shared/"+filename)
                 data_up = f"{filename}{SEPARATOR}{filesize}".encode()
                 client.send(data_up)
                 progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
-                with open("./shared/"+filename, "rb") as f:
-                   for _ in progress:
-                        bytes_read = f.read(BUFFER_SIZE)
-                        if not bytes_read:
-                            break
-                        client.sendall(bytes_read)
-                        progress.update(len(bytes_read))
+                f = open("./shared/"+filename, "rb") 
+                i = 0
+        
+                oi = 0
+                while oi <= filesize:
+                    bytes_read = f.read(BUFFER_SIZE)
+                    oi += len(bytes_read)
+                    client.sendall(bytes_read)
+                    progress.update(len(bytes_read))
+            
+                f.close()
+                client.send(f"finish".encode())
+    
             elif dataDecode == "exit" or dataDecode == "EXIT":
                 client.close()
                 break
-                
+

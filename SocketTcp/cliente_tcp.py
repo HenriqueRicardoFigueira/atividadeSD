@@ -12,7 +12,7 @@ import os
 import tqdm
 
 SEPARATOR = "<SEPARATOR>"
-BUFFER_SIZE = 4096 
+BUFFER_SIZE = 1024 
 host = '127.0.0.1'
 port = 5000
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -39,17 +39,23 @@ while True:
         filename = os.path.basename(filename)
         filesize = int(filesize)
         progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
-        with open("./recive/"+filename, "wb") as f:
-            for _ in progress:
-                bytes_read = sock.recv(BUFFER_SIZE)
-                if not bytes_read:    
-                    break
-                f.write(bytes_read)
-                progress.update(len(bytes_read))
+        f = open("./recive/"+filename, "wb")
+        oi = 0
+        while oi <= filesize:
+            bytes_read = sock.recv(BUFFER_SIZE)
+            oi += len(bytes_read)
+            f.write(bytes_read)
+            progress.update(len(bytes_read))
+        
+        bytes_read = sock.recv(BUFFER_SIZE)
+        f.close()
+        sock.close()
+        print(bytes_read.decode())    
+    
     else:
         data = sock.recv(BUFFER_SIZE)
         if data != b"":
             print(str(repr(data)))
     
-#sock.close()
+sock.close()
 
