@@ -42,15 +42,17 @@ while True:
         progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
         f = open("./recive/"+filename, "wb")
         oi = 0
-        while oi <= filesize:
+        while True:
             bytes_read = sock.recv(BUFFER_SIZE)
             oi += len(bytes_read)
             f.write(bytes_read)
             progress.update(len(bytes_read))
+            if oi == filesize:
+                sock.close()
+                break
         
         bytes_read = sock.recv(BUFFER_SIZE)
         f.close()
-        sock.close()
         print(bytes_read.decode())    
     
     else:

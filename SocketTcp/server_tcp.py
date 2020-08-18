@@ -36,7 +36,7 @@ def parse_date(dt):
 
 lock = threading.Lock()
 
-def threads(client):
+def threads(client, sock):
     while True:
         dataRecive = recive_message(client)
         dow = dataRecive.decode().split(" ")
@@ -71,10 +71,8 @@ def threads(client):
                     oi += len(bytes_read)
                     client.sendall(bytes_read)
                     progress.update(len(bytes_read))
-                    if oi > filesize:
-                        print("oi")
-                
-                client.close()
+                    if oi == filesize:
+                        break
         
             elif dataDecode == "exit" or dataDecode == "EXIT":
                 client.close()
@@ -84,6 +82,7 @@ def threads(client):
             else:
                 lock.release()
                 break
+    
     client.close()
 
 def main():
@@ -95,7 +94,7 @@ def main():
         client, addr = sock.accept()
         lock.acquire()
         print(f"[+] {addr} is connected.")
-        start_new_thread(threads, (client,)) 
+        start_new_thread(threads, (client,sock,)) 
         
     sock.close()
 
