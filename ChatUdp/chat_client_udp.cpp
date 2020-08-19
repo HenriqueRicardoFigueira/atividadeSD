@@ -1,3 +1,11 @@
+/*
+#!/usr/bin/python 
+# author: henrique Ricardo Figueira
+# disciplina: Sistemas Distribuídos
+# data: 19/08/2020
+# descrição: Implementação de serviço de chat  P2P usando Sockets Multicast e UDP
+###
+*/
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -51,6 +59,7 @@ int main(int argc, const char** argv) {
 		exit(1);
     } 
 
+    //adiciona no grupo de msgs
     group.imr_multiaddr.s_addr = inet_addr("225.1.1.1");
     group.imr_interface.s_addr = inet_addr("127.0.0.1");
     ret = setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&group, sizeof(group));
@@ -61,6 +70,8 @@ int main(int argc, const char** argv) {
 		printf("%s \n", strerror(errno));
 		exit(1);
     }
+
+    //prepara para receber ack
     message msg = message();
     array<char,32> sms;
     vector<char> msgs;
@@ -69,11 +80,15 @@ int main(int argc, const char** argv) {
     int i = 0; 
     string dg;
 
-    printf("Digite seu nick: ");
-    //scanf("%s", dg);
 
+
+    /*printf("Digite seu nick: ");
+    //scanf("%s", dg);
+    */
+    //laço para recebimento e envio de msgs
     while (true)
     {
+        //caso não consiga receber msg sai
         if (read(sock, databuf, sizeof(sms)) < 0)
         {
             cout << ">> ERRO receber msg.\n";
@@ -82,13 +97,15 @@ int main(int argc, const char** argv) {
 		    exit(1);
         }
         else
-        {   
+        {   //recebe msg e converte de array para vector ****arrumar tamanho do array******
             while (sms[i] != -1)
             {
+                //pega tamanho do nick
                 if (i == 1)
                 {
                     msg.set_nicksize(size_t(sms[i]));
                 }
+                //pega tamanho da msg
                 else if (i == (3+int(msg.get_nicksize())))
                 {
                     msg.set_msgsize(size_t(sms[i]));
@@ -96,6 +113,7 @@ int main(int argc, const char** argv) {
                 msgs.push_back(sms[i]);
                 i++;
             }
+            //traduz vetor para strings
             msg.parse_message(msgs);
             cout << "MSG: " << msg.get_nick() << " - " << msg.get_msg() << "\n";
         }

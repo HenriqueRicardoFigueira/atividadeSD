@@ -1,3 +1,12 @@
+/*
+#!/usr/bin/python 
+# author: henrique Ricardo Figueira
+# disciplina: Sistemas Distribuídos
+# data: 19/08/2020
+# descrição: Implementação de serviço de chat  P2P usando Sockets Multicast e UDP
+###
+*/
+
 #include <iostream>
 #include <bits/stdc++.h>
 #include <unistd.h>
@@ -12,6 +21,10 @@
 #include <list>
 #include <vector> 
 using namespace std;
+
+/*
+    Cria messagem padrão para envio e recebimento , baseado no código do professor.
+*/
 
 class message
 {
@@ -83,6 +96,8 @@ void message::print()
     cout << msg << "\n";
 }
 
+
+//converte o vetor criado para strings
 void message::parse_message(vector<char> msgg)
 {
     type = msgg[0];
@@ -103,6 +118,7 @@ void message::parse_message(vector<char> msgg)
     msg = auxmsg;
 }
 
+//cria vetor com as msgs de acordo com o protocolo
 vector<char> message::cast_msg()
 {
     vector <char> msgB;

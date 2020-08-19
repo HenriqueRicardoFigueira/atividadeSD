@@ -1,3 +1,13 @@
+/*
+#!/usr/bin/python 
+# author: henrique Ricardo Figueira
+# disciplina: Sistemas Distribuídos
+# data: 19/08/2020
+# descrição: Implementação de serviço de chat  P2P usando Sockets Multicast e UDP
+###
+*/
+
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -55,11 +65,14 @@ int main(int argc, const char** argv) {
 		printf("%s \n", strerror(errno));
 		exit(1);
     }
+
+    //cria msg de ack
     message msg = message();
     msg.set_type(0);
     msg.set_nick("server");
     msg.set_sms("ack");
     
+    //vetor com msg de acordo com o protocolo
     vector<char> sms = msg.cast_msg();
     char databuf[sms.size()];
     for (size_t i = 0; i < sms.size(); i++)
@@ -67,7 +80,8 @@ int main(int argc, const char** argv) {
         printf("%d ", sms[i]);
         databuf[i] = sms[i];
     }
-
+    
+    //envia ack para todos do grupo
     ret = sendto(sock, &databuf, sizeof(databuf), 0, (struct sockaddr*)&groupSock, sizeof(groupSock));
     if (ret < 0)
     {
