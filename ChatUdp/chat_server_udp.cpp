@@ -1,5 +1,4 @@
 /*
-#!/usr/bin/python 
 # author: henrique Ricardo Figueira
 # disciplina: Sistemas Distribuídos
 # data: 19/08/2020
@@ -42,7 +41,7 @@ int main(int argc, const char** argv) {
     //inicializa a strutura sockaddr 
     groupSock.sin_family = AF_INET;
     groupSock.sin_addr.s_addr = inet_addr("225.1.1.1");
-    groupSock.sin_port = htons(5000);
+    groupSock.sin_port = htons(6789);
 
     //disabilita loopback
     ret = setsockopt(sock, IPPROTO_IP, IP_MULTICAST_LOOP, (char *)&loopch, sizeof(loopch));
@@ -80,7 +79,7 @@ int main(int argc, const char** argv) {
         printf("%d ", sms[i]);
         databuf[i] = sms[i];
     }
-    
+
     //envia ack para todos do grupo
     ret = sendto(sock, &databuf, sizeof(databuf), 0, (struct sockaddr*)&groupSock, sizeof(groupSock));
     if (ret < 0)
